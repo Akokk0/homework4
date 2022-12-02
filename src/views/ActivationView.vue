@@ -1,6 +1,6 @@
 <template>
-  <div class="main">
-    <div class="inside" v-if="flag">
+  <div class="main" v-loading="flag">
+    <div class="inside">
       <h1 style="color: white">激活成功！</h1>
       <p style="color: white">点击按钮跳转到登录页</p>
       <el-button id="btn" @click="toHomePage">登录</el-button>
@@ -16,15 +16,19 @@
 
   const $route = useRoute()
   const $router = useRouter()
-  const flag = ref(false)
+  const flag = ref(true)
 
   const code = $route.params.code
 
   async function active() {
+    ElMessage({
+      message: '正在激活账号，请稍等！',
+      type: 'info'
+    })
     try {
       const {data: res} = await activation(code as string)
-      flag.value = res.flag
-      if (flag.value) {
+      flag.value = !res.flag
+      if (res.flag) {
         ElMessage({
           message: res.message,
           type: 'success'

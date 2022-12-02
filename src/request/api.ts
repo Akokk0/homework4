@@ -2,6 +2,7 @@ import request from "@/request/index";
 import {SignupDataInt} from "@/type/signup";
 import {LoginDataInt} from "@/type/login";
 import {ChangePwdDataInt} from "@/type/changePwd";
+import {VerifyCPCode} from "@/type/verifyCPCode";
 
 // 注册
 export function signUp(data: SignupDataInt) {
@@ -49,5 +50,21 @@ export function verifyToken(data: string) {
         url: 'verifyToken',
         method: 'GET',
         data: {name: null, cookie: data}
+    })
+}
+
+export function verifyCPCode(data: VerifyCPCode) {
+    return request({
+        url: 'verifyCPCode',
+        method: 'POST',
+        data
+    })
+}
+
+export function checkEmail(data: string) {
+    return request({
+        url: 'checkEmail',
+        method: 'POST',
+        data: {email: data}
     })
 }

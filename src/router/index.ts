@@ -19,7 +19,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/LoginView.vue')
   },
   {
-    path: '/forget',
+    path: '/forget/:email/:code',
     name: 'forget',
     component: () => import('@/views/ForgetView.vue')
   }
@@ -33,6 +33,8 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const token: string | null = localStorage.getItem('token')
   if (to.path.startsWith('/activation')) {
+    next()
+  } else if(to.path.startsWith('/forget')) {
     next()
   } else if (token && to.path !== '/login') {
     try {
@@ -59,11 +61,19 @@ router.beforeEach((to, from, next) => {
         type: 'error'
       })
     }
-  } else if (!token && (to.path !== '/login' || to.path !== '/forget')) {
+  } else if (!token && to.path !== '/login') {
     next('/login')
   } else {
     next()
   }
 })
+
+/*function inPath(path: string): boolean {
+  if (['/login'].includes(path) || path.startsWith('/forget')) {
+    return true
+  } else {
+    return false
+  }
+}*/
 
 export default router

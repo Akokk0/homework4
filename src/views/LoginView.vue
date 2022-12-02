@@ -57,6 +57,7 @@
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="signUpFunc(signUpFormRef)" class="login-btn">注册</el-button>
+            <el-button type="primary" @click="resetForm(signUpFormRef)" class="login-btn">重置</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -126,7 +127,7 @@
   import {ElMessage} from "element-plus";
   import {useRouter} from "vue-router";
   import {reactive, ref} from "vue";
-  import {login, retrievePwd, signUp} from "@/request/api";
+  import {checkEmail, login, retrievePwd, signUp} from "@/request/api";
   import {LoginDataInt} from "@/type/login";
   import {SignupDataInt} from "@/type/signup";
 
@@ -173,12 +174,28 @@
     await formEI.validate(async (valid, fields) => {
       if (valid) {
         try {
-          const {data: res} = await signUp(signUpForm)
+          const {data: res} = await checkEmail(signUpForm.email)
+          console.log(res)
           if (res.flag) {
-            ElMessage({
-              message: res.message,
-              type: 'success'
-            })
+            try {
+              const {data: res} = await signUp(signUpForm)
+              if (res.flag) {
+                ElMessage({
+                  message: res.message,
+                  type: 'success'
+                })
+              } else {
+                ElMessage({
+                  message: res.message,
+                  type: 'error'
+                })
+              }
+            } catch (e) {
+              ElMessage({
+                message: '服务器正忙，请稍后重试！',
+                type: 'error'
+              })
+            }
           } else {
             ElMessage({
               message: res.message,
@@ -191,6 +208,8 @@
             type: 'error'
           })
         }
+      } else {
+        console.log('error submit！', fields)
       }
     })
   }
@@ -201,9 +220,19 @@
       if (valid) {
         try {
           const {data: res} = await login(loginForm)
-          console.log(res.data)
-          localStorage.setItem('token', res.data)
-          $router.push('/')
+          if (res.flag) {
+            ElMessage({
+              message: res.message,
+              type: 'success'
+            })
+            localStorage.setItem('token', res.data)
+            $router.push('/')
+          } else {
+            ElMessage({
+              message: res.message,
+              type: 'error'
+            })
+          }
         } catch (e) {
           ElMessage({
             message: '服务器正忙，请稍后重试！',
@@ -222,6 +251,10 @@
     await formEl.validate(async (valid, fields) => {
       if (valid) {
         try {
+          ElMessage({
+            message: '正在发送邮件，请稍等！',
+            type: 'info'
+          })
           const {data: res} = await retrievePwd(forgetForm.email)
           if (res.flag) {
             ElMessage({
@@ -245,10 +278,10 @@
     forgetFormRef
   }
 
-  /*const resetForm = (formEI: FormInstance | undefined) => {
+  const resetForm = (formEI: FormInstance | undefined) => {
     if (!formEI) return
     formEI.resetFields()
-  }*/
+  }
 
   const signup = () => {
     let container = document.getElementById('dowebok')
