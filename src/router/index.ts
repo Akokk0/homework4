@@ -6,6 +6,27 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'home',
+    redirect: 'goods',
+    children: [
+      {
+        path: 'goods',
+        name: 'goods',
+        meta: {
+          isShow: true,
+          title: '商品列表'
+        },
+        component: () => import('@/components/Goods.vue')
+      },
+      {
+        path: 'users',
+        name: 'users',
+        meta: {
+          isShow: true,
+          title: '用户列表'
+        },
+        component: () => import('@/components/Users.vue')
+      }
+    ],
     component: () => import('@/views/BackendView.vue')
   },
   {
@@ -40,17 +61,18 @@ router.beforeEach((to, from, next) => {
     try {
       verifyToken(token).then((res) => {
         if (res.data.flag) {
+          next()
+        } else {
           ElMessage({
-            message: '请先登录！',
+            message: res.data.message,
             type: 'error'
           })
+          localStorage.removeItem('token')
           next('/login')
-        } else {
-          next()
         }
       }).catch((reason) => {
         ElMessage({
-          message: '跨域请求出错！',
+          message: '服务器正忙，请稍后重试！',
           type: 'error'
         })
         next('/login')

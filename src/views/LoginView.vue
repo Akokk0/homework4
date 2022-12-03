@@ -219,6 +219,10 @@
     await formEI.validate(async (valid, fields) => {
       if (valid) {
         try {
+          ElMessage({
+            message: '正在登录中...',
+            type: 'info'
+          })
           const {data: res} = await login(loginForm)
           if (res.flag) {
             ElMessage({
